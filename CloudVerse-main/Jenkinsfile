@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('GitHub Connected') {
+            steps {
+                echo 'Repository Connected Successfully'
+            }
+        }
+
+        stage('Docker Check') {
+            steps {
+                sh 'docker --version'
+            }
+        }
+
+        stage('Build App Image') {
+            steps {
+                sh 'docker build -t cloudverse-app .'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh '''
+                docker rm -f cloudverse-app || true
+                docker run -d -p 80:80 --name cloudverse-app cloudverse-app
+                '''
+            }
+        }
+
+        stage('Running Containers') {
+            steps {
+                sh 'docker ps'
+            }
+        }
+
+        stage('Deployment Verification') {
+            steps {
+                sh 'curl -I http://localhost'
+            }
+        }
+
+        stage('Success') {
+            steps {
+                echo 'CloudVerse CI/CD Pipeline Executed Successfully'
+            }
+        }
+    }
+}
